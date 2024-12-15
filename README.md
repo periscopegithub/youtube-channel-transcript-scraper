@@ -25,7 +25,6 @@ The purpose of this project is to allow users to scrape **YouTube video transcri
 ## Usage of Libraries
 
 - **[scrapetube](https://github.com/axelperret/scrapetube)**: A Python library that allows easy access to public YouTube channel videos without the need for authentication. This library is used to retrieve video metadata (URLs, titles, upload dates) for the specified channels.  
-    According to the [scrapetube documentation](https://github.com/dermasmid/scrapetube), you can specify either the **channel username** (e.g., `LinusTechTips`) or the **channel URL** to get videos for a channel. The username should be provided without the `@` symbol.
 
 - **[youtube-transcript-api](https://github.com/jdepoix/youtube-transcript-api)**: This library is used to retrieve transcripts of YouTube videos. It supports multiple languages, including Traditional and Simplified Chinese, English, and more. The transcript is fetched for each video in the preferred language (if available).
 
@@ -88,9 +87,7 @@ channels:
 
 - `html_formatting`: If set to true, the script will preserve HTML formatting in the transcript (if available). Otherwise, plain text will be used.
 
-- `channels`: This list contains the YouTube channel usernames you want to scrape. You can find the channel username from their YouTube URL (e.g., https://www.youtube.com/c/channel_1). Use the username without the `@` symbol, as shown in the example.
-
-    You can also use the channel URL instead, as described in the scrapetube documentation.
+- `channels`: This list contains the YouTube channel usernames you want to scrape. You can find the channel username from their YouTube URL (e.g., https://www.youtube.com/c/channel_1) or their channel pages. Use the username without the `@` symbol, as shown in the example.
 
 ---
 
@@ -140,7 +137,6 @@ Please note that this application relies on parts of the YouTube API that are no
 
 ## Known Issues
 - **Missing Transcripts**: If a video does not have a transcript available in any of the preferred languages (or English), it will fail to scrape, and no transcript will be saved. The failure will be logged in the `app.log` file.
-- **Rate Limiting**: If YouTube imposes rate limits, you may experience delays in fetching transcripts. The script will log warnings if this happens.
 
 ---
 
