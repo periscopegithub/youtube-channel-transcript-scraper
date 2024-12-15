@@ -1,4 +1,4 @@
-# YouTube Transcript Scraper
+# YouTube Channel Transcript Scraper
 
 This Python project allows you to scrape transcripts of videos from specified YouTube channels. The app utilizes the **[youtube-transcript-api](https://github.com/jdepoix/youtube-transcript-api)** and **[scrapetube](https://github.com/axelperret/scrapetube)** libraries to efficiently gather video metadata and transcripts.
 
