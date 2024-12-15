@@ -43,8 +43,8 @@ To set up the project, you'll need to install the necessary dependencies. The ea
 ### 1. Set Up Conda Environment
 First, create and activate a conda environment:
 ```bash
-conda create -n youtube_scraper python=3.9 -y
-conda activate youtube_scraper
+conda create -n <env_name> python=3.9 -y
+conda activate <env_name>
 ```
 
 ### 2. Install Required Libraries
