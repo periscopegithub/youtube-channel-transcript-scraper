@@ -1,0 +1,6 @@
+# Ignore channels and logs folders
+channels/
+logs/
+
+# Ignore the config.yaml file (as users will create their own)
+config.yaml
