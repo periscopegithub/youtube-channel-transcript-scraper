@@ -25,7 +25,7 @@ The purpose of this project is to allow users to scrape **YouTube video transcri
 ## Usage of Libraries
 
 - **[scrapetube](https://github.com/axelperret/scrapetube)**: A Python library that allows easy access to public YouTube channel videos without the need for authentication. This library is used to retrieve video metadata (URLs, titles, upload dates) for the specified channels.  
-    According to the [scrapetube documentation](https://github.com/axelperret/scrapetube#usage), you can specify either the **channel username** (e.g., `LinusTechTips`) or the **channel URL** to get videos for a channel. The username should be provided without the `@` symbol.
+    According to the [scrapetube documentation](https://github.com/dermasmid/scrapetube), you can specify either the **channel username** (e.g., `LinusTechTips`) or the **channel URL** to get videos for a channel. The username should be provided without the `@` symbol.
 
 - **[youtube-transcript-api](https://github.com/jdepoix/youtube-transcript-api)**: This library is used to retrieve transcripts of YouTube videos. It supports multiple languages, including Traditional and Simplified Chinese, English, and more. The transcript is fetched for each video in the preferred language (if available).
 
