@@ -42,15 +42,13 @@ def sanitize_name(name):
 
 def append_to_csv(file_path, data):
     """Append data to a CSV file, creating it if it doesn't exist."""
-    columns = ["Video URL", "Video ID", "Upload Date", "Scrape Date", "Status"]
+    columns = ["Video URL", "Video ID", "Scrape Date", "Status"]
     df = pd.DataFrame(data, columns=columns)
     if not os.path.exists(file_path):
         df.to_csv(file_path, index=False)
     else:
         existing = pd.read_csv(file_path)
-        combined = pd.concat([existing, df]).drop_duplicates(
-            subset=["Video ID", "Upload Date"]
-        )
+        combined = pd.concat([existing, df]).drop_duplicates(subset=["Video ID"])
         combined.to_csv(file_path, index=False)
 
 
