@@ -42,7 +42,7 @@ def sanitize_name(name):
 
 def append_to_csv(file_path, data):
     """Append data to a CSV file, creating it if it doesn't exist."""
-    columns = ["Video URL", "Video ID", "Upload Date", "Scrape Date", "Transcript"]
+    columns = ["Video URL", "Video ID", "Upload Date", "Scrape Date", "Status"]
     df = pd.DataFrame(data, columns=columns)
     if not os.path.exists(file_path):
         df.to_csv(file_path, index=False)
@@ -55,13 +55,23 @@ def append_to_csv(file_path, data):
 
 
 def save_transcript_txt(folder, video_name, transcript):
-    """Save the transcript as a .txt file."""
+    """Save the transcript as a .txt file and append to master file."""
+    # Save individual transcript file
     file_name = sanitize_name(video_name)[:FILE_NAME_MAX_LENGTH]
     if FILE_NAME_TIMESTAMP:
         file_name += f"_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}"
     file_path = folder / f"{file_name}.txt"
+
+    # Save to individual file
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(transcript)
+
+    # Append to master file
+    master_file = folder / "master_transcripts.txt"
+    with open(master_file, "a", encoding="utf-8") as f:
+        f.write(f"\n<{file_name}>\n")
+        f.write(transcript)
+        f.write(f"\n</{file_name}>\n")
 
 
 # --- Main Workflow ---
@@ -86,6 +96,7 @@ def process_channel(channel_username, output_folder):
         video_ids = []
 
         for video in videos:
+            # print(video)
             video_id = video["videoId"]
             video_url = f"https://www.youtube.com/watch?v={video_id}"
             video_title = (
@@ -93,23 +104,29 @@ def process_channel(channel_username, output_folder):
                 .get("runs", [{}])[0]
                 .get("text", "No Title Available")
             )
-            upload_date = video.get("publishedTimeText", {}).get(
-                "simpleText", "Unknown Date"
-            )
+            # upload_date = video.get("publishedTimeText", {}).get(
+            #     "simpleText", "Unknown Date"
+            # )
 
             video_data = {
                 "Video URL": video_url,
                 "Video ID": video_id,
-                "Upload Date": upload_date,
+                # "Upload Date": upload_date,
                 "Scrape Date": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "Transcript": None,
+                "Status": "PENDING",
             }
 
-            # Skip duplicate videos
+            # Check for previously processed or failed videos
             if os.path.exists(csv_path):
                 existing_data = pd.read_csv(csv_path)
                 if video_id in existing_data["Video ID"].values:
-                    logging.info(f"Skipping duplicate video: {video_id}")
+                    existing_row = existing_data[
+                        existing_data["Video ID"] == video_id
+                    ].iloc[0]
+                    if existing_row["Status"] == "FAILED":
+                        logging.info(f"Skipping known failed video: {video_id}")
+                    elif existing_row["Status"] == "SUCCESS":
+                        logging.info(f"Skipping previously processed video: {video_id}")
                     continue
 
             try:
@@ -126,10 +143,9 @@ def process_channel(channel_username, output_folder):
 
                 # Format the transcript
                 txt_formatted = formatter.format_transcript(transcript_text)
-                video_data["Transcript"] = txt_formatted
+                video_data["Status"] = "SUCCESS"
 
-                # Append data and save transcript
-                append_to_csv(csv_path, [video_data])
+                # Save transcript to file if successful
                 save_transcript_txt(channel_folder, video_title, txt_formatted)
                 logging.info(f"Processed video: {video_id}")
 
@@ -137,11 +153,21 @@ def process_channel(channel_username, output_folder):
                 logging.warning(
                     f"Too many requests made for video {video_id}. Rate limit reached."
                 )
+                video_data["Status"] = "FAILED"
                 break  # Exit loop to avoid too many retries
             except Exception as e:
-                logging.warning(
-                    f"Error in transcript fetching for video {video_id}: {e}"
-                )
+                error_msg = str(e)
+                if "Subtitles are disabled for this video" in error_msg:
+                    logging.warning(f"Subtitles are disabled for video {video_id}")
+                    video_data["Status"] = "FAILED - Subtitles disabled"
+                else:
+                    logging.warning(
+                        f"Error in transcript fetching for video {video_id}: {error_msg}"
+                    )
+                    video_data["Status"] = "FAILED"  # Mark as failed attempt
+
+            # Record both successful and failed attempts in CSV
+            append_to_csv(csv_path, [video_data])
 
             video_ids.append(video_id)
             video_details.append(
